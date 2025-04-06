@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="IlluminatedCloud" name="Illuminated Cloud">
       <configuration>
-        <option name="connectionName" value="develop" />
+        <option name="connectionName" value="crean-archi" />
         <option name="connectionType" value="OAUTH" />
         <option name="moduleContents">
           <ModuleContents>
@@ -23,7 +23,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.sf" />
       <excludeFolder url="file://$MODULE_DIR$/.sfdx" />
     </content>
-    <orderEntry type="jdk" jdkName="IlluminatedCloud (clean-architecture-research/develop)" jdkType="IlluminatedCloud" />
+    <orderEntry type="jdk" jdkName="IlluminatedCloud (clean-architecture-research/crean-archi)" jdkType="IlluminatedCloud" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="clean-architecture-research/lwc_types" level="project" />
   </component>

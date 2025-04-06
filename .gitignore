@@ -51,3 +51,5 @@ target/
 /.illuminatedCloud/
 **/tsconfig*.json
 **/*.tsbuildinfo
+.idea
+clean-architecture-research.iml
