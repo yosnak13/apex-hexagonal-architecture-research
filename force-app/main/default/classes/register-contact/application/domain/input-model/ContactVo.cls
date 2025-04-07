@@ -15,6 +15,6 @@ public with sharing class ContactVo {
   }
 
   public Contact buildNewContact() {
-    return new Contact(AccountId = accountId, Name = contactName);
+    return new Contact(AccountId = accountId, LastName = contactName);
   }
 }
