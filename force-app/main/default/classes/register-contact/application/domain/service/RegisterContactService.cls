@@ -10,6 +10,6 @@ public with sharing class RegisterContactService implements RegisterContactUseCa
   }
 
   public void exec(ContactVo vo) {
-    contactRepository.register(vo);
+    contactRepository.create(vo);
   }
 }

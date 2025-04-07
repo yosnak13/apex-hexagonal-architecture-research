@@ -4,8 +4,7 @@
 
 public with sharing class RegisterContactInjector {
   public static RegisterContactService RegisterContactService() {
-    // TODO: 生焼け状態はrepository実装後に修正
-    RegisterContactRepository repo;
+    RegisterContactRepository repo = new RegisterContactRepositoryImpl();
     return new RegisterContactService(repo);
   }
 }

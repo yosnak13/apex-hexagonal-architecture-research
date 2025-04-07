@@ -4,7 +4,7 @@
 
 @IsTest
 public with sharing class RegisterContactRepositoryMock implements RegisterContactRepository {
-  public void register(ContactVo vo) {
+  public void create(ContactVo vo) {
     return;
   }
 }
