@@ -4,7 +4,10 @@
 
 @IsTest
 public with sharing class RegisterContactRepositoryMock implements RegisterContactRepository {
+  public static Boolean wasCalled = false;
+
   public void create(ContactVo vo) {
+    wasCalled = true;
     return;
   }
 }

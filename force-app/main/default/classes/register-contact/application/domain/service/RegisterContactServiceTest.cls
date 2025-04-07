@@ -18,7 +18,7 @@ private class RegisterContactServiceTest {
     ContactVo vo = new ContactVo(acct.Id, 'testName');
     result.exec(vo);
 
-    System.assert(true);
+    System.assert(RegisterContactRepositoryMock.wasCalled);
   }
 
   @IsTest
