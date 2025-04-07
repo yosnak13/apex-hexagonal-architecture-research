@@ -2,7 +2,7 @@
  * Created by yosnak13 on 2025/04/07.
  */
 
-public with sharing class RegisterContactService implements RegisterContactUseCase{
+public with sharing class RegisterContactService implements RegisterContactUseCase {
   final RegisterContactRepository contactRepository;
 
   public RegisterContactService(RegisterContactRepository contactRepository) {
@@ -10,7 +10,6 @@ public with sharing class RegisterContactService implements RegisterContactUseCa
   }
 
   public void exec(ContactVo vo) {
-    // todo: 実装
-    contactRepository.register();
+    contactRepository.create(vo);
   }
 }

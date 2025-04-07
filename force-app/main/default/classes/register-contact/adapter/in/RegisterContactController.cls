@@ -5,11 +5,7 @@
 public with sharing class RegisterContactController {
   @AuraEnabled
   public static void register(Id accountId, String contactName) {
-    RegisterContactUseCase useCase = RegisterContactInjector.RegisterContactService();
-    try {
-      useCase.exec(new ContactVo(accountId, contactName));
-    } catch (DmlException e) {
-      throw e;
-    }
+    RegisterContactUseCase useCase = RegisterContactInjector.newRegisterContactUseCase();
+    useCase.exec(new ContactVo(accountId, contactName));
   }
 }
