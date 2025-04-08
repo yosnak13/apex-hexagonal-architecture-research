@@ -19,6 +19,7 @@
 - アダプター（実装）: ポートを通じて外部システムと連携する具体的な実装部分。例としてデータベースアクセスや外部APIの呼び出しなどが含まれる
 - この構造により、ビジネスロジックは外部技術やインフラストラクチャの変更から切り離され、独立してテスト可能に
 
+<img width="863" alt="hexagonal" src="https://github.com/user-attachments/assets/33551d56-bfa0-4ddf-9246-c31de9a3fa7e" />
 
 ## Salesforceにおける、レイヤー構成の概要
 
