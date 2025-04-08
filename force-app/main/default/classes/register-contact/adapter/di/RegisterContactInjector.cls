@@ -3,13 +3,9 @@
  */
 
 public with sharing class RegisterContactInjector {
-  public static RegisterContactService newRegisterContactUseCase() {
-    return new RegisterContactService(resolveRepository());
-  }
+  public static RegisterContactUseCase newRegisterContactUseCase() {
+    if (Test.isRunningTest()) return new RegisterContactServiceMock();
 
-  private static RegisterContactRepository resolveRepository() {
-    if (Test.isRunningTest()) return new RegisterContactRepositoryMock();
-
-    return new RegisterContactRepositoryImpl();
+    return new RegisterContactService(new RegisterContactRepositoryImpl());
   }
 }
