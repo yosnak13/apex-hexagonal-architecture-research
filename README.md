@@ -1,18 +1,256 @@
-# Salesforce DX Project: Next Steps
+# Apexクラス実装方針解説
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+ヘキサゴナルアーキテクチャで実装するケースを実装を検証する。  
+ヘキサゴナルアーキテクチャについて、このREADMEでは詳しく解説できないが、実装は以下の書籍に準じている。 
+- [手を動かしてわかるクリーンアーキテクチャ　ヘキサゴナルアーキテクチャによるクリーンなアプリケーション開発](https://amzn.asia/d/dugG7Cw)
 
-## How Do You Plan to Deploy Your Changes?
+本プロジェクトでは、ヘキサゴナルアーキテクチャ（Hexagonal Architecture） に基づいた構成を採用。  
+ヘキサゴナルアーキテクチャ（Hexagonal Architecture）は、2005年にAlistair Cockburn氏によって提唱されたソフトウェア設計のアーキテクチャパターン。  
+このスタイルは、柔軟性、疎結合性、テスタビリティを向上させることを目的とし、「ポートとアダプター」（Ports and Adapters）とも呼ばれることがある。  
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+具体的には、アプリケーションの **ビジネスロジック(ユースケース、ドメイン)を中心に据え、  
+外部との接続（UI、DB、APIなど）を「ポート」と「アダプター」** という明確なインターフェースで分離する設計思想である。
 
-## Configure Your Salesforce DX Project
+## 基本概念
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+ヘキサゴナルアーキテクチャは、以下のような構造を持つ：
+- ビジネスロジック: システムの中心部分であり、ユースケースやビジネスルールを実現する
+- ポート（インターフェース）: ビジネスロジックと外部システムを繋ぐ抽象化されたインターフェース
+- アダプター（実装）: ポートを通じて外部システムと連携する具体的な実装部分。例としてデータベースアクセスや外部APIの呼び出しなどが含まれる
+- この構造により、ビジネスロジックは外部技術やインフラストラクチャの変更から切り離され、独立してテスト可能に
 
-## Read All About It
+<img width="863" alt="hexagonal" src="https://github.com/user-attachments/assets/33551d56-bfa0-4ddf-9246-c31de9a3fa7e" />
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+## Salesforceにおける、レイヤー構成の概要
+
+```shell
+[ Trigger / Flow / Apex Controller ]      ← 外部ドライバ  
+              ↓  
+[ Port Interface (e.g. UseCaseInterface) ]  ← Port(受信ポートInterface)
+              ↓  
+[ Application Services ]                  ← ビジネスロジック(UseCase)
+              ↓  
+[ Port Interface (e.g. Repository) ]      ← Port(送信ポートInterface)
+              ↓  
+[ Adapter (SOQL/DML/External Services) ]  ← 外部アダプタ  
+````
+
+Application Services*: ここでは、アプリケーションの「ユースケース（ビジネス処理の流れ）」を手続き的にまとめたレイヤーとしており、  
+ドメインロジックを直接持つのではなく、「何をするか」「どの順でどう操作するか」という処理の **オーケストレーション（指揮役）** を担う。
+
+
+## 六角形の由来
+
+P.45~46より引用、要約
+> ヘキサゴナルアーキテクチャが概念的にどのような構成になっているのか示すものです。  
+> 名前の由来である六角形(hexagon)で表現していますが、六角形であることに意味はありません。  
+> 伝え聞きによると、アプリケーションには他のシステムやアダプタと接続する部分が4つ以上あることを示したかったからです。
+
+## パッケージ構成
+
+前提として、Apexにパッケージの概念はないが、伝達容易性の観点から、ディレクトリではなくパッケージという単語をあえて使用することとする。
+ 
+- 機能単位のパッケージを、classesディレクトリに作成(例: 取引先窓口登録 -> register-contact)して、その配下に、規則に基づいた資材を開発する
+- この機能単位とは、ドメイン単位で設計されることとし、決してオブジェクト単位で設計するものではない(取引先オブジェクトにまつわる機能だからAccount、という安易な作成はしないこと。取引先の登録という仕事であるならば、register-accountとする)
+- パッケージの概念がないため、ディレクトリを作成して表現することとする
+- 別機能の資材へアクセスすることは禁止する。(アクセス修飾子のほとんどはpublicで宣言せざるを得ないため、運用ベースで禁止とする)
+
+### 具体的な構成
+
+di、domainパッケージを除き、書籍の第4章に沿って、以下で実装している。  
+
+- diパッケージは、以下の理由から独自に実装した
+  - ApexにDI機能が存在しないため
+  - ビジネスロジック(UseCase層)が永続化層に依存しないようにするため、UseCase層の外側で永続化層と同じ層であるadapter層の関心ごとと考えたため
+- domainパッケージは、書籍ではmodelパッケージというものにドメインモデルを実装するとしているが、私は主に利用頻度の多いと想定する、値オブジェクトやEntityを明示的に表現した
+
+```shell
+.
+├── force-app
+│   └── main
+│       └── default
+│           ├── classes
+│           │   └── register-contact
+│           │       ├── adapter
+│           │       │   ├── di
+│           │       │   │   └── DIクラス
+│           │       │   ├── in
+│           │       │   │   └── Controller
+│           │       │   └── out
+│           │       │       └── 永続化層実装クラス
+│           │       └── application
+│           │           ├── domain
+│           │           │   ├── service
+│           │           │   │   └── UseCase実装クラス
+│           │           │   ├── vo
+│           │           │   │   └── 値オブジェクト
+│           │           │   ├── entity
+│           │           │   │   └── entity
+│           │           └── port
+│           │               ├── in
+│           │               │   └── UseCaseInterface
+│           │               └── out
+│           │                   └── 永続化層Interface
+```
+
+第4章では、機能単位で層を意識したパッケージを構成したときの構成例を提案しているに過ぎない。  
+そのため、パッケージ構成の最適解はプロジェクトや設計者の考えに左右するものと考える。  
+書籍の著者である須田氏は、domainパッケージでは、以下のようにserviceとmodelパッケージを採用しておられ、  
+UseCaseへの入力モデル(値オブジェクトなど)やビジネスロジックを持つドメインモデルを格納することを想定していると読み取った。  
+私自身も、特にドメインモデルの表現方法は模索中で、上記の構成が最も適切とは考えておらず改善の余地が大いにあると考える。
+
+```shell
+## 参考。第4章で提案されている構成を引用
+.
+├── force-app
+│   └── main
+│       └── default
+│           ├── classes
+│           │   └── register-contact
+│           │       ├── adapter
+│           │       │   ├── di
+│           │       │   │   └── DIクラス
+│           │       │   ├── in
+│           │       │   │   └── Controller
+│           │       │   └── out
+│           │       │       └── 永続化層実装クラス
+│           │       └── application
+│           │           ├── domain
+│           │           │   ├── service
+│           │           │   │   └── UseCase実装クラス
+│           │           │   └── model
+│           │           │       └── ドメインモデル
+│           │           └── port
+│           │               ├── in
+│           │               │   └── UseCaseInterface
+│           │               └── out
+│           │                   └── 永続化層Interface
+```
+
+## Adapter
+
+解説
+
+- アプリケーションとの核とのコミュニケーションをとる
+- portで定義されたインターフェースを実装しており、DBやUIとのやりとりを行う。アダプタを変更することで、異なるDBやUIに対応することが容易にすることを狙う
+
+### in
+
+- Controllerサフィックスを付与したクラスを実装し、このクラスはフロントからのパラメータ受け取り、UseCaseの呼び出しとその結果の返却の責務を追う
+- 複数のLWCからの呼び出しはOKだが、単一責務の原則とテスト容易性担保のため、`@AuraEnable`アノテーションを付与するpublicメソッドは1つのみとする
+- フロントエンドからの入力値のフォーマットは、adapter.inパッケージにValidatorを実装して行う。そのクラス名にはValidatorサフィックスを付与する
+- Validatorは、Apexクラスが正しく処理できるようにするためのもので、Salesforce標準機能の入力規則とは別物と考える
+
+### out
+
+- この層は、永続化層へのアクセスと外部APIへのアクセスを責務とする
+- 実装クラス命名は、データ操作ロジック以外の意味合いを持たない場合、Implサフィックスを付与する
+- mockの場合、Mockサフィックスを付与し、クラス名は~Mockとなる
+- mockには`@IsTest`アノテーションをクラスに付与し、mockに対するテストクラス実装は不要とする
+
+### di
+
+ここのみ、書籍に存在しないパッケージとして作成している。以下に理由と実装規則を記述する
+
+- Java(SpringBoot)のように、DIコンテナでインスタンス生成ができないため、独自にDIする仕組みが必要なため実装する
+- UseCaseインターフェースを実装するクラスのインスタンスをビルドすることのみを責務とする
+- 命名はInjectorサフィックスを付与する
+- 他の機能の資材からや、`Controller`以外からアクセスすることを禁止する
+
+## Application
+
+解説
+
+- port: ビジネスロジックが外部システムと通信するためのインターフェース。具体的な処理をビジネスロジックから切り離し、どのように外部とやり取りするかを定義し、ビジネスロジックがどのような技術に依存するかを知らずに済むようになる
+    - in: ビジネスロジックとのやりとりを担うクラスのInterfaceを定義
+    - out: SOQLや外部システムとの通信を担うクラスのInterfaceを定義
+- domain, serviceは下部で詳しく記載
+
+### port.in
+
+- 受信ポートとして、UseCaseインターフェースを提供する。実装はApplicationの核となるUseCaseによって実装される
+- 上記以外は何も提供しないこと
+
+### port.out
+
+- 送信ポートして、永続化層インターフェースを提供する。実装は、UseCaseから呼び出される送信アダプタによって実装される
+- 上記以外は何も提供しないこと
+
+### domain
+
+- ドメインオブジェクト、値オブジェクトの実装をする
+- クラスの責務をクラス名から読み取れるよう、以下の規則で実装する
+    - 値オブジェクトはVoサフィックスを付与する
+    - Entityは、Entityサフィックスを付与する
+
+### service
+
+- UseCaseInterfaceを実装したクラスを実装する。この層の責務は以下とする
+    - 永続化層の呼び出し
+    - ドメインオブジェクトのビジネスロジックの呼び出し
+    - ビジネスロジック実行で得た生成値を、呼び出し元に返却
+- application.port.inパッケージに宣言されているUseCaseInterfaceを実装
+- フィールドには永続化層のInterfaceを持たせる
+- 原則再利用を禁止する
+- publicメソッドはexecのみとし、それ以外は実装しない
+
+## その他
+
+- ディレクトリ・パッケージはケバブケースとする
+
+## 実践してみて、気がついたいい点
+
+- ビジネスロジックが複雑になるほど、真価を発揮できると実感
+- classes配下は機能単位でパッケージしていくため、何の機能の資材か迷子になりづらい（ある意味、余計な機能を持たせる機会をいい意味で剥奪している）
+- ビジネスロジックはdomain層に集約されており、デザインパターンがないより明らかにスパゲティコードになりづらい
+- レイヤードアーキテクチャなだけあり、UI変更やデータベース構造（項目の追加、変更）の変更に対し、ビジネスロジックは影響をうけづらい
+- Interfaceを介して層ごとに疎結合なので、テスト容易性は非常に高い印象（テスト時にMockに置き換えられるのは改めて便利）
+
+## 課題点
+
+### 実装面での課題
+
+- パッケージプライベートにできないため、public修飾子を持つメソッドやクラスに、他の機能単位のクラスが実質アクセス可能。運用ベースで防ぐしかない（これはSalesforceが提唱する、ApexEnterprisePatternsも同様）
+- UseCaseのInterfaceはexecメソッドのみを強制することができているが、それ以外のメリットがない。多態の良さを生かしきれていない。依存の方向性的に、Interfaceでなくてもいい
+- パッケージ単位で資材を開発するが、どうしても再利用すべきドメインオブジェクトが出現することが予想され、その場合は再利用しずらい
+
+### salesforce機能との衝突
+
+- 書籍では、UseCaseの入力モデル(値オブジェクト)では、UseCaseInterface実装クラスが汚れるのを避けるため入力値チェックを行わなくて良いとするが、入力値は正しくバリデーションしないと、INSERT・UPDATE時に入力規則に引っかかるため、入力規則に基づいた実装は必要になる
+- sObjectを返却したい場合、SOQLをフロントに返す必要があり、ビジネスロジック層がSOQL技術に対して依存することを意味する。ApexはSOQLとしかやり取りしないこととすれば影響はほとんどなく大したことがないが、例外的に依存を認めることとなる。ヘキサゴナルアーキテクチャのいいところをに目を瞑ることになる
+- Idからオブジェクトをクエリするだけなら、このアーキテクチャはSFのメモリやCPUリソースを無駄遣いする実装とも言えてしまう
+  - ビジネスロジックをもたないクエリとの棲み分けを考える必要はありそうで、LWCのLightningデータサービスが使えるならそちらを優先すべきなのは確か
+  - ビジネスロジックをもたないクエリの場合、以下のコードをみると実装が大袈裟に見えるのはなんとなくわかる
+
+```cls
+public with sharing class RegisterContactController {
+  // register-accountを例に、アーキテクチャなし版の開発と比較する。
+  // 今回実装分。レイヤーに基づいて必要なインスタンスをビルドして処理させる。
+  @AuraEnabled
+  public static void register(Id accountId, String contactName) {
+    RegisterContactUseCase useCase = RegisterContactInjector.newRegisterContactUseCase();
+    useCase.exec(new ContactVo(accountId, contactName));
+  }
+  
+  ↓
+  
+  // 依存性を無視してSOQLを実装すると、このクラス1つで完結する。SELECTだけする機能ならならなおさら短くすむ。LWCならLightningDataServiceでよいので、これすらいらない。
+  // ただし、Interfaceを実装しないためmockは使えない。ビジネスロジックが複雑化するほど、この実装はスパゲティコードになりがち。
+  @AuraEnabled
+  public static void register(Id accountId, String contactName) {
+    Account[] accts = [SELECT Id FROM Account WHERE Id = :accountId()];
+    if (accts.isEmpty()) throw new HandledException('No Account Is Exist.');
+
+    insert new Contact(AccountId = :accountId, LastName = contactName);
+  }
+}
+```
+- ApexTriggerはDBから発火するため、ヘキサゴナルアーキテクチャ的には一番外のDBレイヤーからのリクエストに該当する。そのため、Triggerディレクトリ内にハンドラークラスを実装し、Register.inパッケージ内に実装したクラス（Controller）を呼び出す処理にすればいい。
+  - しかし、特定の項目を更新する、というような簡素な処理である場合は、やはり実装が大袈裟になりがちに見えてしまう。簡潔な処理しかしないトリガーである場合は、Apexトリガーではなくフロートリガーに任せた方がいい
+
+## 個人的な総評
+
+- 相性が悪い部分は当然あるが、活かせないということは全くない。
+- 特に保守しやすいコードにする、という点においては、正しく実装すれば十分に保守しやすいコードになりうると考えている。(まだ簡単すぎるコードでしか実装できておらず、良さが伝わる状態ではない)  
+- Salesforceそのものが、データ駆動な製品といえることを再確認した。sObjectを大切にしており、カスタムApexクラスをLWCに返却する実装にすると、オブジェクト権限や項目レベルセキュリティ等は無視した実装となり、相性が悪いので適材適所とする必要あり。
+  - SOQLと密結合しているだけあり、意外とデータ駆動設計の方が都合がよかったりするのだろうか
