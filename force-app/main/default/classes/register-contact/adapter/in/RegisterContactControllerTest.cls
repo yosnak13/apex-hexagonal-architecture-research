@@ -14,8 +14,11 @@ private class RegisterContactControllerTest {
   @IsTest
   static void registerTest() {
     Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
+
+    Test.startTest();
     RegisterContactController.register(acct.Id, 'contactTest');
-    System.assert(true);
+    Test.stopTest();
+
     System.assert(RegisterContactServiceMock.wasCalled);
   }
 }
