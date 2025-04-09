@@ -4,8 +4,8 @@
 
 public with sharing class RegisterContactController {
   @AuraEnabled
-  public static void register(Id accountId, String contactName) {
+  public static void register(Id accountId, String contactName, String email) {
     RegisterContactUseCase useCase = RegisterContactInjector.newRegisterContactUseCase();
-    useCase.exec(new ContactVo(accountId, contactName));
+    useCase.exec(new ContactVo(accountId, contactName, email));
   }
 }

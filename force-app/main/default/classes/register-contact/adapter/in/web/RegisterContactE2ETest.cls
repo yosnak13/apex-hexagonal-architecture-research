@@ -18,7 +18,7 @@ private class RegisterContactE2ETest {
     insert testSetting;
 
     Test.startTest();
-    RegisterContactController.register(acct.Id, 'contactTest');
+    RegisterContactController.register(acct.Id, 'contactTest', 'sample@example.com');
     Test.stopTest();
 
     Integer recordSize = [SELECT COUNT() FROM Contact WHERE AccountId = :acct.Id];
