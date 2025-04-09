@@ -9,6 +9,7 @@
 
         <members>FindAccountRepository</members>
         <members>FindAccountRepositoryMock</members>
+        <members>FindAccountRepositoryEmptyMock</members>
 
 <!--        <members>RegisterContactRepository</members>-->
 <!--        <members>RegisterContactRepositoryImpl</members>-->

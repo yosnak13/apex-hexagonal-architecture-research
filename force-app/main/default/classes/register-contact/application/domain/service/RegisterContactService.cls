@@ -6,6 +6,8 @@ public with sharing class RegisterContactService implements RegisterContactUseCa
   final FindAccountRepository accountRepository;
   final RegisterContactRepository contactRepository;
 
+  private static final String NO_ACCOUNT_EXCEPTION = '取引先が存在しないため、取引先責任者を登録できませんでした。';
+
   public RegisterContactService(FindAccountRepository accountRepository, RegisterContactRepository contactRepository) {
     this.accountRepository = accountRepository;
     this.contactRepository = contactRepository;
@@ -16,7 +18,7 @@ public with sharing class RegisterContactService implements RegisterContactUseCa
     AccountListEntity accountEntities = accountRepository.findById(vo.getAccountId());
     if (accountEntities.isEmpty()) {
       Database.rollback(sp);
-      throw new HandledException('取引先が存在しないため、取引先責任者を登録できませんでした。');
+      throw new HandledException(NO_ACCOUNT_EXCEPTION);
     }
     contactRepository.create(vo);
   }
