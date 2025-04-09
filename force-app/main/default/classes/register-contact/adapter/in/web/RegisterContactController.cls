@@ -10,9 +10,10 @@ public with sharing class RegisterContactController {
     RegisterContactController controller =
         new RegisterContactController(RegisterContactInjector.newRegisterContactUseCase());
 
+    // TODO: 具体的な例外は独自の例外を実装する
     try {
       controller.registerContactUseCase.exec(new ContactVo(accountId, contactName, email));
-    } catch (Exception e) {
+    } catch (HandledException e) {
       throw new HandledException('取引先責任者の登録に失敗しました: ' + e.getMessage());
     }
   }

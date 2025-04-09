@@ -6,17 +6,25 @@
         <members>RegisterContactController</members>
         <members>RegisterContactControllerTest</members>
         <members>RegisterContactE2ETest</members>
+
+        <members>FindAccountRepository</members>
+        <members>FindAccountRepositoryMock</members>
+
 <!--        <members>RegisterContactRepository</members>-->
 <!--        <members>RegisterContactRepositoryImpl</members>-->
 <!--        <members>RegisterContactRepositoryImplTest</members>-->
 <!--        <members>RegisterContactRepositoryExceptionMock</members>-->
 <!--        <members>RegisterContactRepositoryMock</members>-->
-<!--        <members>RegisterContactUseCase</members>-->
-<!--        <members>RegisterContactService</members>-->
-<!--        <members>RegisterContactServiceMock</members>-->
-<!--        <members>RegisterContactServiceTest</members>-->
+
+        <members>RegisterContactUseCase</members>
+        <members>RegisterContactService</members>
+        <members>RegisterContactServiceMock</members>
+        <members>RegisterContactServiceTest</members>
+
         <members>ContactVo</members>
         <members>ContactVoTest</members>
+        <members>AccountListEntity</members>
+        <members>AccountListEntityTest</members>
         <name>ApexClass</name>
     </types>
 

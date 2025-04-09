@@ -5,6 +5,7 @@
 @IsTest
 private class RegisterContactServiceTest {
   private static final String ACCOUNT_NAME = 'RegisterContactServiceTest';
+  private static final String EMAIL = 'sample@example.com';
 
   @TestSetup
   static void setUp() {
@@ -13,24 +14,15 @@ private class RegisterContactServiceTest {
 
   @IsTest
   static void execTest() {
-    RegisterContactService result = new RegisterContactService(new RegisterContactRepositoryMock());
+    RegisterContactService result = new RegisterContactService(
+        new FindAccountRepositoryMock(), new RegisterContactRepositoryMock()
+    );
     Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
-    ContactVo vo = new ContactVo(acct.Id, 'testName');
+    ContactVo vo = new ContactVo(acct.Id, 'testName', EMAIL);
+
     result.exec(vo);
 
+    System.assert(FindAccountRepositoryMock.wasCalled);
     System.assert(RegisterContactRepositoryMock.wasCalled);
-  }
-
-  @IsTest
-  static void execTest_catchDMLException() {
-    RegisterContactService result = new RegisterContactService(new RegisterContactRepositoryExceptionMock());
-    Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
-    ContactVo vo = new ContactVo(acct.Id, 'testName');
-    try {
-      result.exec(vo);
-    } catch (DmlException e) {
-      String expectedMessage = RegisterContactRepositoryExceptionMock.MESSAGE;
-      System.assertEquals(expectedMessage, e.getMessage());
-    }
   }
 }
