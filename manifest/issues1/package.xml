@@ -21,9 +21,11 @@
         <members>RegisterContactService</members>
         <members>RegisterContactServiceMock</members>
         <members>RegisterContactServiceTest</members>
+        <members>RegisterContactInput</members>
+        <members>RegisterContactInputTest</members>
 
-        <members>ContactVo</members>
-        <members>ContactVoTest</members>
+        <members>ContactEntity</members>
+        <members>ContactEntityTest</members>
         <members>AccountCollection</members>
         <members>AccountCollectionTest</members>
         <name>ApexClass</name>
