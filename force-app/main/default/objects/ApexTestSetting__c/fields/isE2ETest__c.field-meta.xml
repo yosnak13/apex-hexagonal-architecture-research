@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IsE2ETest__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>E2Eテストであるかのフラグ値。E2Eテストを実装する場合、このフラグをONにする。</description>
+    <inlineHelpText>DIクラスはメソッドでUseCase実装クラスかMockか返すとき、Test.isRunningTest()メソッドとこのフラグがTrueの場合、E2Eテストであるかを判定する実装でなければならない。下記がサンプル。
+
+public static RegisterContactUseCase newRegisterContactUseCase() {
+  if (Test.isRunningTest() &amp;&amp; !testSetting.isE2ETest__c) return new RegisterContactServiceMock();
+  return new RegisterContactService(new RegisterContactRepositoryImpl());
+}</inlineHelpText>
+    <label>IsE2ETest</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
