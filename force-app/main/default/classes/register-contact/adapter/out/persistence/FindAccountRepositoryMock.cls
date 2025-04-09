@@ -7,11 +7,11 @@ public with sharing class FindAccountRepositoryMock implements FindAccountReposi
   public static Boolean wasCalled = false;
   public static final String ACCOUNT_NAME = 'FindAccountRepositoryMock';
 
-  public AccountListEntity findById(Id accountId) {
+  public AccountCollection findById(Id accountId) {
     wasCalled = true;
     List<Account> mockAccounts = new List<Account>{
         new Account(Name = ACCOUNT_NAME)
     };
-    return new AccountListEntity(mockAccounts);
+    return new AccountCollection(mockAccounts);
   }
 }

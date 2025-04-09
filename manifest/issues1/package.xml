@@ -24,8 +24,8 @@
 
         <members>ContactVo</members>
         <members>ContactVoTest</members>
-        <members>AccountListEntity</members>
-        <members>AccountListEntityTest</members>
+        <members>AccountCollection</members>
+        <members>AccountCollectionTest</members>
         <name>ApexClass</name>
     </types>
 

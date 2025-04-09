@@ -3,5 +3,5 @@
  */
 
 public interface FindAccountRepository {
-  AccountListEntity findById(Id accountId);
+  AccountCollection findById(Id accountId);
 }

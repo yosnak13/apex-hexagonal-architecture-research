@@ -4,7 +4,7 @@
 
 @IsTest
 public with sharing class FindAccountRepositoryEmptyMock implements FindAccountRepository {
-  public AccountListEntity findById(Id accountId) {
-    return new AccountListEntity(new List<Account>());
+  public AccountCollection findById(Id accountId) {
+    return new AccountCollection(new List<Account>());
   }
 }

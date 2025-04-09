@@ -7,7 +7,7 @@ private class RegisterContactServiceTest {
   private static final String ACCOUNT_NAME = 'RegisterContactServiceTest';
   private static final String EMAIL = 'sample@example.com';
 
-  private static final String NO_ACCOUNT_EXCEPTION = '取引先が存在しないため、取引先責任者を登録できませんでした。';
+  private static final String NO_ACCOUNT_EXCEPTION = AccountCollection.NO_ACCOUNT_EXCEPTION;
 
   @TestSetup
   static void setUp() {
