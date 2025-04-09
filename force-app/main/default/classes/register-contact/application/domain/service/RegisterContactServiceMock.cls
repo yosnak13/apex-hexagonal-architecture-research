@@ -6,7 +6,7 @@
 public with sharing class RegisterContactServiceMock implements RegisterContactUseCase {
   public static Boolean wasCalled = false;
 
-  public void exec(ContactVo vo) {
+  public void exec(RegisterContactInput input) {
     wasCalled = true;
     return ;
   }

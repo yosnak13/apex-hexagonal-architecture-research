@@ -11,7 +11,7 @@ public with sharing class RegisterContactService implements RegisterContactUseCa
     this.contactRepository = contactRepository;
   }
 
-  public void exec(ContactVo vo) {
+  public void exec(RegisterContactInput input) {
     AccountCollection collection = accountRepository.findById(vo.getAccountId());
     collection.validateExist();
     contactRepository.create(vo);

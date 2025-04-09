@@ -13,7 +13,7 @@ public with sharing class RegisterContactController {
         new RegisterContactController(RegisterContactInjector.newRegisterContactUseCase());
 
     try {
-      controller.registerContactUseCase.exec(new ContactVo(accountId, contactName, email));
+      controller.registerContactUseCase.exec(new RegisterContactInput(accountId, contactName, email));
     } catch (HandledException e) {
       throw new HandledException(REGISTER_FAILED_MESSAGE + e.getMessage());
     }
