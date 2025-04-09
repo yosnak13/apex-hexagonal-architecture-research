@@ -1,8 +1,43 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>*</members>
+        <members>RegisterContactInjector</members>
+        <members>RegisterContactInjectorTest</members>
+        <members>RegisterContactController</members>
+        <members>RegisterContactControllerTest</members>
+        <members>RegisterContactE2ETest</members>
+
+        <members>FindAccountRepository</members>
+        <members>FindAccountRepositoryImpl</members>
+        <members>FindAccountRepositoryMock</members>
+        <members>FindAccountRepositoryEmptyMock</members>
+
+        <members>RegisterContactRepository</members>
+        <members>RegisterContactRepositoryImpl</members>
+        <members>RegisterContactRepositoryImplTest</members>
+        <members>RegisterContactRepositoryMock</members>
+
+        <members>RegisterContactUseCase</members>
+        <members>RegisterContactService</members>
+        <members>RegisterContactServiceMock</members>
+        <members>RegisterContactServiceTest</members>
+
+        <members>ContactVo</members>
+        <members>ContactVoTest</members>
+        <members>AccountCollection</members>
+        <members>AccountCollectionTest</members>
         <name>ApexClass</name>
     </types>
+
+    <types>
+        <members>ApexTestSetting__c</members>
+        <name>CustomObject</name>
+    </types>
+
+    <types>
+        <members>ApexTestSetting__c.IsE2ETest__c</members>
+        <name>CustomField</name>
+    </types>
+
     <version>63.0</version>
 </Package>

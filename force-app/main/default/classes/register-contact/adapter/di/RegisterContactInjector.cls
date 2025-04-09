@@ -4,10 +4,13 @@
 
 public with sharing class RegisterContactInjector {
   public static RegisterContactUseCase newRegisterContactUseCase() {
-    // E2Eテストのために、カスタム設定の項目値を利用するしかない
-    ApexTestSetting__c testSetting = ApexTestSetting__c.getInstance();
-    if (Test.isRunningTest() && !testSetting.IsE2ETest__c) return new RegisterContactServiceMock();
+    // E2Eテストのために、カスタム設定の項目値を利用するしかない。Unitテスト以外は実装クラスを返す
+    if (isUnitTest()) return new RegisterContactServiceMock();
 
-    return new RegisterContactService(new RegisterContactRepositoryImpl());
+    return new RegisterContactService(new FindAccountRepositoryImpl(), new RegisterContactRepositoryImpl());
+  }
+
+  private static Boolean isUnitTest() {
+    return Test.isRunningTest() && !ApexTestSetting__c.getInstance().IsE2ETest__c;
   }
 }

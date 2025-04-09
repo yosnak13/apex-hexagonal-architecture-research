@@ -16,7 +16,7 @@ private class RegisterContactControllerTest {
     Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
 
     Test.startTest();
-    RegisterContactController.register(acct.Id, 'contactTest');
+    RegisterContactController.register(acct.Id, 'contactTest', 'sample@example.com');
     Test.stopTest();
 
     System.assert(RegisterContactServiceMock.wasCalled);
