@@ -6,7 +6,7 @@
 public with sharing class RegisterContactRepositoryMock implements RegisterContactRepository {
   public static Boolean wasCalled = false;
 
-  public void create(ContactVo vo) {
+  public void create(ContactEntity entity) {
     wasCalled = true;
     return;
   }

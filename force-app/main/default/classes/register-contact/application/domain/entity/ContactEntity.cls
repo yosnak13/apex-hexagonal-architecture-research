@@ -2,7 +2,7 @@
  * Created by yosnak13 on 2025/04/07.
  */
 
-public with sharing class ContactVo {
+public with sharing class ContactEntity {
   final Id accountId;
   final String contactName;
   final String email;
@@ -11,7 +11,7 @@ public with sharing class ContactVo {
   private static final String ILLEGAL_ID_MESSAGE = 'AccountのIdではありません';
   private static final String ILLEGAL_CONTACT_NAME_MESSAGE = '取引先窓口名を入力してください';
 
-  public ContactVo(Id accountId, String contactName, String email) {
+  public ContactEntity(Id accountId, String contactName, String email) {
     if (accountId.getSobjectType().getDescribe().getName() != ACCOUNT) throw new IllegalArgumentException(ILLEGAL_ID_MESSAGE);
     if (String.isEmpty(contactName)) throw new IllegalArgumentException(ILLEGAL_CONTACT_NAME_MESSAGE);
 
@@ -20,7 +20,7 @@ public with sharing class ContactVo {
     this.email = email;
   }
 
-  public Contact buildNewContact() {
+  public Contact toContact() {
     return new Contact(AccountId = accountId, LastName = contactName, Email = email);
   }
 

@@ -3,5 +3,5 @@
  */
 
 public interface RegisterContactRepository {
-  void create(ContactVo vo);
+  void create(ContactEntity vo);
 }

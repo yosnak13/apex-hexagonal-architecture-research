@@ -16,7 +16,7 @@ private class RegisterContactRepositoryImplTest {
   @IsTest
   static void createTest() {
     Id accountId = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME].Id;
-    ContactVo arg = new ContactVo(accountId, CONTACT_NAME, EMAIL);
+    ContactEntity arg = new ContactEntity(accountId, CONTACT_NAME, EMAIL);
 
     Test.startTest();
     RegisterContactRepositoryImpl impl = new RegisterContactRepositoryImpl();

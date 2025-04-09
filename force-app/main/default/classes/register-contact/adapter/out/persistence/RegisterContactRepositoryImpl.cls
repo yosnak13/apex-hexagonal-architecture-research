@@ -3,8 +3,8 @@
  */
 
 public with sharing class RegisterContactRepositoryImpl implements RegisterContactRepository {
-  public void create(ContactVo vo) {
-    Contact con = vo.buildNewContact();
+  public void create(ContactEntity entity) {
+    Contact con = entity.toContact();
     insert con;
   }
 }
