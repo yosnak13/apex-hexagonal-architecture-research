@@ -3,7 +3,7 @@
  */
 
 public with sharing class AccountCollection {
-  final List<Account> accounts;
+  public final List<Account> accounts;
 
   public static final String NO_ACCOUNT_EXCEPTION = '取引先が存在しないため、取引先責任者を登録できませんでした。';
 

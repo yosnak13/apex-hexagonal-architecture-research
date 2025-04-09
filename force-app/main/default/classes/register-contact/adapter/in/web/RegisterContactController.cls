@@ -5,16 +5,17 @@
 public with sharing class RegisterContactController {
   final RegisterContactUseCase registerContactUseCase;
 
+  private static final String REGISTER_FAILED_MESSAGE = '取引先責任者の登録に失敗しました: ';
+
   @AuraEnabled
   public static void register(final Id accountId, final String contactName, final String email) {
     RegisterContactController controller =
         new RegisterContactController(RegisterContactInjector.newRegisterContactUseCase());
 
-    // TODO: 具体的な例外は独自の例外を実装する
     try {
       controller.registerContactUseCase.exec(new ContactVo(accountId, contactName, email));
     } catch (HandledException e) {
-      throw new HandledException('取引先責任者の登録に失敗しました: ' + e.getMessage());
+      throw new HandledException(REGISTER_FAILED_MESSAGE + e.getMessage());
     }
   }
 
