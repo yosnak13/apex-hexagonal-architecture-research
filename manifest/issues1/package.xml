@@ -11,11 +11,10 @@
         <members>FindAccountRepositoryMock</members>
         <members>FindAccountRepositoryEmptyMock</members>
 
-<!--        <members>RegisterContactRepository</members>-->
-<!--        <members>RegisterContactRepositoryImpl</members>-->
-<!--        <members>RegisterContactRepositoryImplTest</members>-->
-<!--        <members>RegisterContactRepositoryExceptionMock</members>-->
-<!--        <members>RegisterContactRepositoryMock</members>-->
+        <members>RegisterContactRepository</members>
+        <members>RegisterContactRepositoryImpl</members>
+        <members>RegisterContactRepositoryImplTest</members>
+        <members>RegisterContactRepositoryMock</members>
 
         <members>RegisterContactUseCase</members>
         <members>RegisterContactService</members>
