@@ -187,6 +187,22 @@ UseCaseへの入力モデル(値オブジェクトなど)やビジネスロジ�
 - UseCaseインターフェースを実装するクラスのインスタンスをビルドすることのみを責務とする
 - 命名はInjectorサフィックスを付与する
 - 他の機能の資材からや、`Controller`以外からアクセスすることを禁止する
+- テストかつ、カスタム設定のApexTestSetting__c.IsE2ETest__c = trueの場合、以下のようにUseCaseのMockではなく実装クラスを返すようにする。これはAdapterに実装するE2Eテストで利用する。このカスタム設定は、後述の「テストクラス設計方針」で解説する
+
+```cls
+public with sharing class RegisterContactInjector {
+  public static RegisterContactUseCase newRegisterContactUseCase() {
+    // E2Eテストのために、カスタム設定の項目値を利用するしかない。Unitテスト以外は実装クラスを返す
+    if (isUnitTest()) return new RegisterContactServiceMock();
+
+    return new RegisterContactService(new FindAccountRepositoryImpl(), new RegisterContactRepositoryImpl());
+  }
+
+  private static Boolean isUnitTest() {
+    return Test.isRunningTest() && !ApexTestSetting__c.getInstance().IsE2ETest__c;
+  }
+}
+```
 
 ## Application
 
@@ -208,8 +224,8 @@ UseCaseへの入力モデル(値オブジェクトなど)やビジネスロジ�
 
 ### domain
 
-- ドメインオブジェクト、値オブジェクトの実装をする
-- クラスの責務をクラス名から読み取れるよう、以下の規則で実装する
+- ドメインオブジェクトの実装をする
+- クラスの意味や責務をクラス名から読み取れるよう、以下の規則で実装する
     - 値オブジェクトは、Voサフィックスを付与する
     - Entityは、Entityサフィックスを付与する
     - Collectionは、Collectionサフィックスを付与する
@@ -240,7 +256,6 @@ UseCaseへの入力モデル(値オブジェクトなど)やビジネスロジ�
     - テストではUseCaseMockを返し、InjectorインスタンスがNullでないことを確認する
       - これはJava等と異なり、instance ofでフィールドのクラスが想定するInterfaceを実装しているかの検証ができないため
       - ビルドしたUseCaseインスタンスのexec()メソッドを実行させて、フィールドに持たせた永続化層のMockの挙動を確認するという方法が取れるが、ControllerとUseCaseでそれを検証するので不要と考えた
-    - テストかつ、カスタム設定のApexTestSetting__c.IsE2ETest__c = trueの場合、UseCaseの実装クラスを返すようにする。これはE2Eテストで利用する
   - Repository
     - データ取得がSOQLの場合、SOQLレコード操作に関するテストを実装する
     - 外部システムへのAPIコールアウトが存在する場合、レスポンスをMockできるクラスを実装してテストする
