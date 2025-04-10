@@ -20,9 +20,9 @@ private class RegisterContactServiceTest {
         new FindAccountRepositoryMock(), new RegisterContactRepositoryMock()
     );
     Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
-    ContactVo vo = new ContactVo(acct.Id, 'testName', EMAIL);
+    RegisterContactInput input = new RegisterContactInput(acct.Id, 'testName', EMAIL);
 
-    result.exec(vo);
+    result.exec(input);
 
     System.assert(FindAccountRepositoryMock.wasCalled);
     System.assert(RegisterContactRepositoryMock.wasCalled);
@@ -34,10 +34,10 @@ private class RegisterContactServiceTest {
         new FindAccountRepositoryEmptyMock(), new RegisterContactRepositoryMock()
     );
     Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
-    ContactVo vo = new ContactVo(acct.Id, 'testName', EMAIL);
+    RegisterContactInput input = new RegisterContactInput(acct.Id, 'testName', EMAIL);
 
     try {
-      result.exec(vo);
+      result.exec(input);
     } catch (HandledException e) {
       System.assertEquals(NO_ACCOUNT_EXCEPTION, e.getMessage());
     }

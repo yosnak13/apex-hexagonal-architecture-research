@@ -1,5 +1,8 @@
 # 課題:「**Salesforceのカスタム開発に最適なデザインパターン（候補はクリーンアーキテクチャ、Apex Enterprise Pattern）を探求し、1レポジトリ分のアプトプットを出す**」
 
+レポジトリ名が、「apex-**crean**-architecture-research」になっているが、「apex-**clean**-architecture-research」が正しい。  
+気がついた時には色々実装していたため、このまま進めることとする。笑
+
 ## 課題に取り組んだ理由
 
 FY25下期の課題にしていた。
@@ -14,7 +17,7 @@ FY25下期の課題にしていた。
 
 ↓
 
-紆余曲折あり、まずキサゴナルアーキテクチャにトライすることとした
+紆余曲折あり、まず「ヘキサゴナルアーキテクチャ」にトライすることとした
 
 ## なぜヘキサゴナルアーキテクチャ?
 
@@ -86,6 +89,7 @@ di、domainパッケージを除き、書籍の第4章に沿って、以下で�
   - ApexにDI機能が存在しないため
   - ビジネスロジック(UseCase層)が永続化層に依存しないようにするため、UseCase層の外側で永続化層と同じ層であるadapter層の関心ごとと考えたため
 - domainパッケージは、書籍ではmodelパッケージというものにドメインモデルを実装するとしているが、私は主に利用頻度の多いと想定する、値オブジェクトやEntityを明示的に表現した
+  - DDDを意識して集約単位でパッケージを切る案もあるが、採用した
 
 ```shell
 .
@@ -116,6 +120,8 @@ di、domainパッケージを除き、書籍の第4章に沿って、以下で�
 │           │           └── port
 │           │               ├── in
 │           │               │   └── UseCaseInterface
+│           │               │   └── input
+│           │               │       └── UseCase入力モデル
 │           │               └── out
 │           │                   └── 永続化層Interface
 ```
@@ -184,6 +190,22 @@ UseCaseへの入力モデル(値オブジェクトなど)やビジネスロジ�
 - UseCaseインターフェースを実装するクラスのインスタンスをビルドすることのみを責務とする
 - 命名はInjectorサフィックスを付与する
 - 他の機能の資材からや、`Controller`以外からアクセスすることを禁止する
+- テストかつ、カスタム設定のApexTestSetting__c.IsE2ETest__c = trueの場合、以下のようにUseCaseのMockではなく実装クラスを返すようにする。これはAdapterに実装するE2Eテストで利用する。このカスタム設定は、後述の「テストクラス設計方針」で解説する
+
+```cls
+public with sharing class RegisterContactInjector {
+  public static RegisterContactUseCase newRegisterContactUseCase() {
+    // E2Eテストのために、カスタム設定の項目値を利用するしかない。Unitテスト以外は実装クラスを返す
+    if (isUnitTest()) return new RegisterContactServiceMock();
+
+    return new RegisterContactService(new FindAccountRepositoryImpl(), new RegisterContactRepositoryImpl());
+  }
+
+  private static Boolean isUnitTest() {
+    return Test.isRunningTest() && !ApexTestSetting__c.getInstance().IsE2ETest__c;
+  }
+}
+```
 
 ## Application
 
@@ -195,19 +217,21 @@ UseCaseへの入力モデル(値オブジェクトなど)やビジネスロジ�
 ### port.in
 
 - 受信ポートとして、UseCaseインターフェースを提供する。実装はApplicationの核となるUseCaseによって実装される
-- 上記以外は何も提供しないこと
+- UseCaseが入力モデルを必要とする場合、このパッケージ内に作成する。UseCaseが処理できる形式を、UseCaseInterfaceを提供するport内で定義してAdapterに要求する意味合い
+- それ以外は提供しないこと
 
 ### port.out
 
 - 送信ポートして、永続化層インターフェース(Repository)を提供する。実装は、UseCaseから呼び出される送信アダプタによって実装される
-- 上記以外は何も提供しないこと
+- それ以外は提供しないこと
 
 ### domain
 
-- ドメインオブジェクト、値オブジェクトの実装をする
-- クラスの責務をクラス名から読み取れるよう、以下の規則で実装する
-    - 値オブジェクトはVoサフィックスを付与する
+- ドメインオブジェクトの実装をする
+- クラスの意味や責務をクラス名から読み取れるよう、以下の規則で実装する
+    - 値オブジェクトは、Voサフィックスを付与する
     - Entityは、Entityサフィックスを付与する
+    - Collectionは、Collectionサフィックスを付与する
 - 独自の例外はここに実装する
 
 ### service
@@ -223,22 +247,34 @@ UseCaseへの入力モデル(値オブジェクトなど)やビジネスロジ�
 
 ## テストクラス設計方針
 
-- adapter(Controller):
-  - InjectorでUseCaseのMockを返却されるようにし、Mockがコールされたことを確認する
-  - 永続化層までの開発を終えたら、E2Eテストを以下のように実装する
-    - adapter.inパッケージ内に実装する
-    - テストメソッド内で後述するカスタム設定をINSERTし、Injectorのロジックを利用してUseCaseの実装クラスを呼び出して、Repositoryの実装クラスを呼び出す
-    - ControllerとInjectorとの結合度が上がっていることを意味するが、システムへ与える悪影響はなくメリットが大きいため許容する。ライブラリ等を使ったテストクラスでMockの呼び出し制御ができないApexの限界と考えている
-- Injector:
-  - テストではUseCaseMockを返す
-  - テストでかつ、カスタム設定のApexTestSetting__c.IsE2ETest__c = trueの場合、UseCaseの実装クラスを返すようにする。これはE2Eテストで利用する
-- Service(UseCase)
-  - テストクラス内でのインスタンス初期化時に永続化層のMockをフィールドに持たせ、Mockの挙動通り動作するか確認
-- Repository
-  - データ取得がSOQLの場合、SOQLレコード操作に関するテストを実装する。外部システムへのAPIコールアウトが存在する場合、レスポンスをMockできるクラスを実装してテストする
+- adapter
+  - Controller:
+    - InjectorでUseCaseのMockを返却するようにして、UseCaseのMockがコールされたことを確認する
+    - 永続化層までの開発を終えたら、E2Eテストを以下のように実装する
+      - adapter.inパッケージ内に実装する
+      - 命名はController名+E2E+Testとする
+      - テストメソッド内で後述するカスタム設定をINSERTし、Injectorのロジックを利用してUseCaseの実装クラスを呼び出して、Repositoryの実装クラスを呼び出す
+        - ControllerとInjectorとの結合度が上がっていることを意味するが、システムへ与える悪影響はなくメリットが大きいため許容する。ライブラリ等を使ったテストクラスでMockの呼び出し制御ができないApexの限界と考えている
+  - Injector:
+    - テストではUseCaseMockを返し、InjectorインスタンスがNullでないことを確認する
+      - これはJava等と異なり、instance ofでフィールドのクラスが想定するInterfaceを実装しているかの検証ができないため
+      - ビルドしたUseCaseインスタンスのexec()メソッドを実行させて、フィールドに持たせた永続化層のMockの挙動を確認するという方法が取れるが、ControllerとUseCaseでそれを検証するので不要と考えた
+  - Repository
+    - データ取得がSOQLの場合、SOQLレコード操作に関するテストを実装する
+    - 外部システムへのAPIコールアウトが存在する場合、レスポンスをMockできるクラスを実装してテストする
+- application
+  - UseCase(Service)
+    - テストクラス内でのインスタンス初期化時、永続化層のMockをフィールドに持たせて初期化し、Mockが挙動通りに動作することで想定通りのロジックが実行されるか確認
+  - VoやEntityなどのドメインオブジェクト、UseCase入力モデル
+    - 値の検証と、メソッドのロジックが正しく挙動するか確認
+    - 以下の条件を満たす場合、private修飾子をもつgetterを定義し、`@TestVisible`アノテーションを付与し、テスト専用のgetterを作成して値を検証する
+      - フィールドにfinal修飾子を付与してカプセル化するが、フィールドを使ったインスタンスメソッドを定義できない場合に、フィールドの値の検証をする場合
+      - 本番環境で他のクラスに値を提供するためのgetterを定義する必要がない場合
+    - [補足]本来、テストコードのためだけのメソッドを実装するのは望ましくない。しかし、フィールドのテストのためにフィールドをpublicにしてカプセル化を崩したり、フィールドに`@TestVisible`を付与してカプセル化したいのかどうかの意図が不明に見えるくらいなら、テスト用のプライベートgetterを実装した方が使われない本番用メソッド実装を防ぐ効果があり、フィールドを外部から秘匿したい意図が理解できるため。
 - mock
   - Mockサフィックスを付与し、クラス名は~Mockとなる
   - mockには`@IsTest`アノテーションをクラスに付与し、mockに対するテストクラス実装は不要とする
+  - 修正により実装クラスの挙動が変わる場合、Mockもそれに沿う挙動をするよう正しくメンテナンスする
 
 ### テストクラスで使用するカスタム設定
 

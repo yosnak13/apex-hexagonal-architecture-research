@@ -11,9 +11,10 @@ public with sharing class RegisterContactService implements RegisterContactUseCa
     this.contactRepository = contactRepository;
   }
 
-  public void exec(ContactVo vo) {
-    AccountCollection collection = accountRepository.findById(vo.getAccountId());
+  public void exec(RegisterContactInput input) {
+    ContactEntity entity = input.toEntity();
+    AccountCollection collection = accountRepository.findById(entity.getAccountId());
     collection.validateExist();
-    contactRepository.create(vo);
+    contactRepository.create(entity);
   }
 }

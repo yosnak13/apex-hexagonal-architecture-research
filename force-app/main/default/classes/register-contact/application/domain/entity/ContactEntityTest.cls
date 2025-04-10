@@ -3,7 +3,7 @@
  */
 
 @IsTest
-private class ContactVoTest {
+private class ContactEntityTest {
   private static final String ACCOUNT_NAME = 'ContactVoTest';
   private static final String CONTACT_NAME = 'ContactNameTest';
   private static final String EMAIL = 'sample@example.com';
@@ -31,7 +31,7 @@ private class ContactVoTest {
 
     for (ParameterizedTest p : parameterizedTests) {
       try {
-        new ContactVo(p.AccountId, p.contactName, p.email);
+        new ContactEntity(p.AccountId, p.contactName, p.email);
         System.assert(p.isAssert);
       } catch (Exception e) {
         System.assert(!p.isAssert);
@@ -46,8 +46,8 @@ private class ContactVoTest {
     String expectedName = CONTACT_NAME;
     String expectedEmail = EMAIL;
 
-    ContactVo vo = new ContactVo(accountId, expectedName, expectedEmail);
-    Contact actual = vo.buildNewContact();
+    ContactEntity entity = new ContactEntity(accountId, expectedName, expectedEmail);
+    Contact actual = entity.toContact();
 
     System.assertEquals(accountId, actual.AccountId);
     System.assertEquals(expectedName, actual.LastName);
@@ -57,7 +57,7 @@ private class ContactVoTest {
   @IsTest
   static void getAccountIdTest() {
     Id accountId = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME].Id;
-    ContactVo actual = new ContactVo(accountId, CONTACT_NAME, EMAIL);
+    ContactEntity actual = new ContactEntity(accountId, CONTACT_NAME, EMAIL);
 
     System.assertEquals(accountId, actual.getAccountId());
   }
