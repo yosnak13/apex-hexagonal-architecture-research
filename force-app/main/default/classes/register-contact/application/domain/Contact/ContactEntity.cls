@@ -5,20 +5,20 @@
 public with sharing class ContactEntity {
   final AccountIdVo idVo;
   final String contactName;
-  final String email;
+  final EmailVo emailVo;
 
   private static final String ILLEGAL_CONTACT_NAME_MESSAGE = '取引先窓口名を入力してください';
 
-  public ContactEntity(AccountIdVo idVo, String contactName, String email) {
+  public ContactEntity(AccountIdVo idVo, String contactName, EmailVo emailVo) {
     if (String.isEmpty(contactName)) throw new IllegalArgumentException(ILLEGAL_CONTACT_NAME_MESSAGE);
 
     this.idVo = idVo;
     this.contactName = contactName;
-    this.email = email;
+    this.emailVo = emailVo;
   }
 
   public Contact toContact() {
-    return new Contact(AccountId = idVo.toId(), LastName = contactName, Email = email);
+    return new Contact(AccountId = idVo.toId(), LastName = contactName, Email = emailVo.toEmail());
   }
 
   public Id getAccountId() {
@@ -31,7 +31,7 @@ public with sharing class ContactEntity {
   }
 
   @TestVisible
-  private String getEmail() {
-    return email;
+  private String getEmailVo() {
+    return emailVo.toEmail();
   }
 }
