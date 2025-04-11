@@ -17,12 +17,13 @@ private class ContactEntityTest {
   static void ContactVoTest() {
     Id accountId = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME].Id;
     AccountIdVo idVo = new AccountIdVo(accountId);
+    LastNameVo lastNameVo = new LastNameVo(CONTACT_NAME);
     EmailVo emailVo = new EmailVo(EMAIL);
 
-    ContactEntity actual = new ContactEntity(idVo, CONTACT_NAME, emailVo);
+    ContactEntity actual = new ContactEntity(idVo, lastNameVo, emailVo);
 
     System.assertEquals(idVo.toId(), actual.getAccountId());
-    System.assertEquals(CONTACT_NAME, actual.getContactName());
+    System.assertEquals(CONTACT_NAME, actual.getContactNameVo());
     System.assertEquals(EMAIL, actual.getEmailVo());
   }
 
@@ -32,7 +33,7 @@ private class ContactEntityTest {
     String expectedName = CONTACT_NAME;
     String expectedEmail = EMAIL;
 
-    ContactEntity entity = new ContactEntity(new AccountIdVo(accountId), expectedName, new EmailVo(EMAIL));
+    ContactEntity entity = new ContactEntity(new AccountIdVo(accountId), new LastNameVo(expectedName), new EmailVo(EMAIL));
     Contact actual = entity.toContact();
 
     System.assertEquals(accountId, actual.AccountId);
@@ -43,7 +44,8 @@ private class ContactEntityTest {
   @IsTest
   static void getAccountIdTest() {
     Id accountId = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME].Id;
-    ContactEntity actual = new ContactEntity(new AccountIdVo(accountId), CONTACT_NAME, new EmailVo(EMAIL));
+    ContactEntity actual = new ContactEntity(
+        new AccountIdVo(accountId), new LastNameVo(CONTACT_NAME), new EmailVo(EMAIL));
 
     System.assertEquals(accountId, actual.getAccountId());
   }
