@@ -24,6 +24,8 @@
         <members>RegisterContactInput</members>
         <members>RegisterContactInputTest</members>
 
+        <members>AccountIdVo</members>
+        <members>AccountIdVoTest</members>
         <members>ContactEntity</members>
         <members>ContactEntityTest</members>
         <members>AccountCollection</members>
@@ -31,15 +33,15 @@
         <name>ApexClass</name>
     </types>
 
-    <types>
-        <members>ApexTestSetting__c</members>
-        <name>CustomObject</name>
-    </types>
+<!--    <types>-->
+<!--        <members>ApexTestSetting__c</members>-->
+<!--        <name>CustomObject</name>-->
+<!--    </types>-->
 
-    <types>
-        <members>ApexTestSetting__c.IsE2ETest__c</members>
-        <name>CustomField</name>
-    </types>
+<!--    <types>-->
+<!--        <members>ApexTestSetting__c.IsE2ETest__c</members>-->
+<!--        <name>CustomField</name>-->
+<!--    </types>-->
 
     <version>63.0</version>
 </Package>
