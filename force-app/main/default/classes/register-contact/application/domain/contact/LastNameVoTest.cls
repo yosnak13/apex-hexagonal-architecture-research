@@ -26,6 +26,7 @@ private class LastNameVoTest {
         System.assert(t.isAssert);
         System.assertEquals(t.lastName, actual.toLastName());
       } catch (IllegalArgumentException e) {
+        System.assert(!t.isAssert);
         System.assertEquals(ILLEGAL_MESSAGE, e.getMessage());
       }
     }

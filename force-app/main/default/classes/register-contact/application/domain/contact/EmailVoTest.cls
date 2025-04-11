@@ -21,23 +21,23 @@ private class EmailVoTest {
         new ParameterizedTest('@example.com', false), // blank before @
         new ParameterizedTest('user@', false), // blank after @
         new ParameterizedTest('user@example', false), // no dot in domain
-        new ParameterizedTest('.user@example.com', false), // dot locates top of local part
-        new ParameterizedTest('user.@example.com', false), // dot locates end of local part
+        new ParameterizedTest('.user@example.com', false), // dot locates at top of local part
+        new ParameterizedTest('user.@example.com', false), // dot locates at end of local part
         new ParameterizedTest('user..name@example.com', false), // double dot in local part
         new ParameterizedTest('user.name@sub..example.com', false), // double dot in domain
-        new ParameterizedTest('user@@example.com', false), // double @
+        new ParameterizedTest('user@@example.com', false), // double @ exists
         new ParameterizedTest('user@example.c', false), // too short TLD
         new ParameterizedTest('###@example.com', false), // only symbol in local part
         new ParameterizedTest('user@com', false) // invalid  domain
     };
 
-    for (ParameterizedTest p : tests) {
+    for (ParameterizedTest t : tests) {
       try {
-        EmailVo vo = new EmailVo(p.email);
-        System.assertEquals(p.email, vo.toEmail());
-        System.assert(p.isAssert);
+        EmailVo vo = new EmailVo(t.email);
+        System.assertEquals(t.email, vo.toEmail());
+        System.assert(t.isAssert);
       } catch (IllegalArgumentException e) {
-        System.assert(!p.isAssert);
+        System.assert(!t.isAssert);
         System.assertEquals(INVALID_EMAIL_MESSAGE, e.getMessage());
 
       }

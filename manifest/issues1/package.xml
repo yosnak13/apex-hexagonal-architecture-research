@@ -37,15 +37,15 @@
         <name>ApexClass</name>
     </types>
 
-<!--    <types>-->
-<!--        <members>ApexTestSetting__c</members>-->
-<!--        <name>CustomObject</name>-->
-<!--    </types>-->
+    <types>
+        <members>ApexTestSetting__c</members>
+        <name>CustomObject</name>
+    </types>
 
-<!--    <types>-->
-<!--        <members>ApexTestSetting__c.IsE2ETest__c</members>-->
-<!--        <name>CustomField</name>-->
-<!--    </types>-->
+    <types>
+        <members>ApexTestSetting__c.IsE2ETest__c</members>
+        <name>CustomField</name>
+    </types>
 
     <version>63.0</version>
 </Package>

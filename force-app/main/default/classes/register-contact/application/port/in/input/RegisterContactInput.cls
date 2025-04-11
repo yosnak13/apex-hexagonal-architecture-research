@@ -14,8 +14,7 @@ public with sharing class RegisterContactInput {
   }
 
   public ContactEntity toEntity() {
-    return new ContactEntity(
-        new AccountIdVo(accountId), new LastNameVo(contactName), new EmailVo(email));
+    return new ContactEntity(new AccountIdVo(accountId), new LastNameVo(contactName), new EmailVo(email));
   }
 
   // カプセル化を保ちつつテストで値を検証させたいので、privateでかつテストからのみ参照できるゲッターを定義
