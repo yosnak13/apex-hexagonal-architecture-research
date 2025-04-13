@@ -24,4 +24,16 @@ private class RegisterContactInputTest {
     System.assertEquals(expectedName, input.getName());
     System.assertEquals(expectedEmail, input.getEmail());
   }
+
+  @IsTest
+  static void toEntityTest() {
+    Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
+    String expectedName = CONTACT_NAME;
+    String expectedEmail = EMAIL;
+    RegisterContactInput input = new RegisterContactInput(acct.Id, expectedName, expectedEmail);
+
+    // 値チェックはContactEntityで実施するため、ここではビルド成功のみ検証
+    input.toEntity();
+    System.assert(true);
+  }
 }

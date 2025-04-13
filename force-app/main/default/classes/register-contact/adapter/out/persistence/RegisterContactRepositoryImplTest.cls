@@ -16,15 +16,16 @@ private class RegisterContactRepositoryImplTest {
   @IsTest
   static void createTest() {
     Id accountId = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME].Id;
-    ContactEntity arg = new ContactEntity(accountId, CONTACT_NAME, EMAIL);
+    ContactEntity entity = new ContactEntity(new AccountIdVo(accountId), new LastNameVo(CONTACT_NAME), new EmailVo(EMAIL));
 
     Test.startTest();
     RegisterContactRepositoryImpl impl = new RegisterContactRepositoryImpl();
-    impl.create(arg);
+    impl.create(entity);
     Test.stopTest();
 
-    Contact actual = [SELECT AccountId, LastName FROM Contact WHERE AccountId = :accountId];
+    Contact actual = [SELECT AccountId, LastName, Email FROM Contact WHERE AccountId = :accountId];
     System.assertEquals(accountId, actual.AccountId);
     System.assertEquals(CONTACT_NAME, actual.LastName);
+    System.assertEquals(EMAIL, actual.Email);
   }
 }

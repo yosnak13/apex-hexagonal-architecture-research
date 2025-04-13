@@ -24,6 +24,12 @@
         <members>RegisterContactInput</members>
         <members>RegisterContactInputTest</members>
 
+        <members>AccountIdVo</members>
+        <members>AccountIdVoTest</members>
+        <members>EmailVo</members>
+        <members>EmailVoTest</members>
+        <members>LastNameVo</members>
+        <members>LastNameVoTest</members>
         <members>ContactEntity</members>
         <members>ContactEntityTest</members>
         <members>AccountCollection</members>
