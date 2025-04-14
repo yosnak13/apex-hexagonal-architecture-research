@@ -17,6 +17,9 @@
         <members>RegisterContactRepositoryImplTest</members>
         <members>RegisterContactRepositoryMock</members>
 
+        <members>SendEmailRepository</members>
+        <members>SendEmailRepositoryMock</members>
+
         <members>RegisterContactUseCase</members>
         <members>RegisterContactService</members>
         <members>RegisterContactServiceMock</members>
