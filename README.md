@@ -1,8 +1,5 @@
 # 課題:「**Salesforceのカスタム開発に最適なデザインパターン（候補はクリーンアーキテクチャ、Apex Enterprise Pattern）を探求し、1レポジトリ分のアプトプットを出す**」
 
-レポジトリ名が、「apex-**crean**-architecture-research」になっているが、「apex-**clean**-architecture-research」が正しい。  
-気がついた時には色々実装していたため、このまま進めることとする。笑
-
 ## 課題に取り組んだ理由
 
 FY25下期の課題にしていた。
@@ -207,6 +204,10 @@ public with sharing class RegisterContactInjector {
 - フィールドには永続化層のInterfaceを持たせて、永続化層のメソッドは抽象化させておく(多態)
 - 別のAdapterからの原則再利用を禁止する
 - publicメソッドはexecのみとし、それ以外は実装しない
+
+## 開発手順
+
+- [docs/development-procedure.md](https://github.com/yosnak13/apex-hexagonal-architecture-research/docs/development-procedure.md)に記載の通りに進める
 
 ## テストクラス設計方針
 
