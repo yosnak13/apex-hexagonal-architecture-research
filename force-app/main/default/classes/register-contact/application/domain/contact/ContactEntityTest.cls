@@ -49,4 +49,38 @@ private class ContactEntityTest {
 
     System.assertEquals(accountId, actual.getAccountId());
   }
+
+  @IsTest
+  static void toEmailMessageTest() {
+    Id accountId = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME].Id;
+    String expectedEmail = EMAIL;
+
+    ContactEntity entity = new ContactEntity(new AccountIdVo(accountId), new LastNameVo(CONTACT_NAME), new EmailVo(expectedEmail));
+    Messaging.SingleEmailMessage actual = entity.toEmailMessage();
+
+    Integer emailToIsExistInFirstIndex = 0;
+    System.assertEquals(expectedEmail, actual.toAddresses[emailToIsExistInFirstIndex]);
+    String expectedTitle = '【ようこそ】' + entity.getContactNameVo() + ' 様';
+    System.assertEquals(expectedTitle, actual.subject);
+    System.assertEquals(buildHtmlBodyForTest(entity), actual.htmlBody);
+  }
+
+  private static String buildHtmlBodyForTest(ContactEntity entity) {
+    return ''
+        + '<!DOCTYPE html>'
+        + '<html>'
+        + '<head><meta charset="UTF-8"><style>'
+        + '  body { font-family: Arial, sans-serif; line-height: 1.6; }'
+        + '  .content { padding: 20px; background: #f9f9f9; border-radius: 10px; }'
+        + '</style></head>'
+        + '<body>'
+        + '  <div class="content">'
+        + '    <h2>' + entity.getContactNameVo() + ' 様</h2>'
+        + '    <p>この度はご登録いただき、誠にありがとうございます。</p>'
+        + '    <p>ご不明点等ございましたら、お気軽にご連絡ください。</p>'
+        + '    <p>今後ともよろしくお願いいたします。</p>'
+        + '  </div>'
+        + '</body>'
+        + '</html>';
+  }
 }

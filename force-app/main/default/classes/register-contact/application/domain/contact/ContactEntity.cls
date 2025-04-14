@@ -21,6 +21,33 @@ public with sharing class ContactEntity {
     return idVo.toId();
   }
 
+  public Messaging.SingleEmailMessage toEmailMessage() {
+    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+    mail.setToAddresses(new List<String>{ emailVo.toEmail() });
+    mail.setSubject('【ようこそ】' + contactNameVo.toLastName() + ' 様');
+    mail.setHtmlBody(buildHtmlBody());
+    return mail;
+  }
+
+  private String buildHtmlBody() {
+    return ''
+        + '<!DOCTYPE html>'
+        + '<html>'
+        + '<head><meta charset="UTF-8"><style>'
+        + '  body { font-family: Arial, sans-serif; line-height: 1.6; }'
+        + '  .content { padding: 20px; background: #f9f9f9; border-radius: 10px; }'
+        + '</style></head>'
+        + '<body>'
+        + '  <div class="content">'
+        + '    <h2>' + contactNameVo.toLastName() + ' 様</h2>'
+        + '    <p>この度はご登録いただき、誠にありがとうございます。</p>'
+        + '    <p>ご不明点等ございましたら、お気軽にご連絡ください。</p>'
+        + '    <p>今後ともよろしくお願いいたします。</p>'
+        + '  </div>'
+        + '</body>'
+        + '</html>';
+  }
+
   @TestVisible
   private String getContactNameVo() {
     return contactNameVo.toLastName();

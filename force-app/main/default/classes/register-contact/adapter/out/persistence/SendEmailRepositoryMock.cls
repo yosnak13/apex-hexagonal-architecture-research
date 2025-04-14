@@ -6,7 +6,7 @@
 public with sharing class SendEmailRepositoryMock implements SendEmailRepository {
   public static Boolean wasCalled = false;
 
-  public void sendEmail() {
+  public void sendEmail(Messaging.SingleEmailMessage emailMessage) {
     wasCalled = true;
     return ;
   }

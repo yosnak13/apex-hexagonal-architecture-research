@@ -8,7 +8,7 @@ public with sharing class RegisterContactInjector {
     if (isUnitTest()) return new RegisterContactServiceMock();
 
     return new RegisterContactService(
-        new FindAccountRepositoryImpl(), new RegisterContactRepositoryImpl(), new SendEmailRepositoryMock()
+        new FindAccountRepositoryImpl(), new RegisterContactRepositoryImpl(), new SendEmailRepositoryImpl()
     );
   }
 

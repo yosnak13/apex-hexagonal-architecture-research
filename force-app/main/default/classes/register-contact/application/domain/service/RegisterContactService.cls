@@ -16,9 +16,15 @@ public with sharing class RegisterContactService implements RegisterContactUseCa
 
   public void exec(RegisterContactInput input) {
     ContactEntity entity = input.toEntity();
-    AccountCollection collection = accountRepository.findById(entity.getAccountId());
-    collection.validateExist();
-    contactRepository.create(entity);
-    emailRepository.sendEmail();
+    Savepoint sp = Database.setSavepoint();
+    try {
+      AccountCollection collection = accountRepository.findById(entity.getAccountId());
+      collection.validateExist();
+      contactRepository.create(entity);
+      emailRepository.sendEmail(entity.toEmailMessage());
+    } catch (EmailException e) {
+      Database.rollback(sp);
+      throw new HandledException(e.getMessage());
+    }
   }
 }

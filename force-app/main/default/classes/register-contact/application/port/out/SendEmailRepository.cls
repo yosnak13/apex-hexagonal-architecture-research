@@ -3,5 +3,5 @@
  */
 
 public interface SendEmailRepository {
-  void sendEmail();
+  void sendEmail(Messaging.SingleEmailMessage emailMessage);
 }
