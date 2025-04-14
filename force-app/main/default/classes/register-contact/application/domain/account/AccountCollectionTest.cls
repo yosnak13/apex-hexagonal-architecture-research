@@ -18,8 +18,7 @@ public with sharing class AccountCollectionTest {
     AccountCollection hasEntity = new AccountCollection(accounts);
 
     hasEntity.validateExist();
-
-    System.assert(true);
+    System.assertEquals(accounts.size(), hasEntity.getAccountSize());
   }
 
   @IsTest

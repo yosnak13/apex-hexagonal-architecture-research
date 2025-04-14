@@ -21,6 +21,6 @@ private class FindAccountRepositoryImplTest {
     AccountCollection actual = repo.findById(expected.Id);
     Test.stopTest();
 
-    System.assertEquals(1, actual.accounts.size());
+    System.assertEquals(1, actual.getAccountSize());
   }
 }
