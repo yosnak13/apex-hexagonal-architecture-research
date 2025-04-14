@@ -7,6 +7,9 @@ public with sharing class ContactEntity {
   final LastNameVo contactNameVo;
   final EmailVo emailVo;
 
+  private static final String WELCOME = '【ようこそ】';
+  private static final String SPACE_WITH_HONORIFIC = ' 様';
+
   public ContactEntity(AccountIdVo idVo, LastNameVo contactNameVo, EmailVo emailVo) {
     this.idVo = idVo;
     this.contactNameVo = contactNameVo;
@@ -24,7 +27,7 @@ public with sharing class ContactEntity {
   public Messaging.SingleEmailMessage toEmailMessage() {
     Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
     mail.setToAddresses(new List<String>{ emailVo.toEmail() });
-    mail.setSubject('【ようこそ】' + contactNameVo.toLastName() + ' 様');
+    mail.setSubject(WELCOME + contactNameVo.toLastName() + SPACE_WITH_HONORIFIC);
     mail.setHtmlBody(buildHtmlBody());
     return mail;
   }
@@ -39,7 +42,7 @@ public with sharing class ContactEntity {
         + '</style></head>'
         + '<body>'
         + '  <div class="content">'
-        + '    <h2>' + contactNameVo.toLastName() + ' 様</h2>'
+        + '    <h2>' + contactNameVo.toLastName() + SPACE_WITH_HONORIFIC + '</h2>'
         + '    <p>この度はご登録いただき、誠にありがとうございます。</p>'
         + '    <p>ご不明点等ございましたら、お気軽にご連絡ください。</p>'
         + '    <p>今後ともよろしくお願いいたします。</p>'

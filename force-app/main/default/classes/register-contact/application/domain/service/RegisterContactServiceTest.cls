@@ -65,5 +65,9 @@ private class RegisterContactServiceTest {
     System.assert(FindAccountRepositoryMock.wasCalled);
     System.assert(RegisterContactRepositoryMock.wasCalled);
     System.assert(SendEmailRepositoryExceptionMock.wasCalled);
+
+    Integer expectedRecordSize = 0;
+    Integer actualRecordSize = [SELECT COUNT() FROM Contact WHERE LastName = :SendEmailRepositoryExceptionMock.FOR_ROLLBACK_CHECK_CONTACT_NAME];
+    System.assertEquals(expectedRecordSize, actualRecordSize);
   }
 }
