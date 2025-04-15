@@ -3,7 +3,7 @@
  */
 
 public with sharing class AccountCollection {
-  public final List<Account> accounts;
+  private final List<Account> accounts;
 
   public static final String NO_ACCOUNT_EXCEPTION = '取引先が存在しないため、取引先責任者を登録できませんでした。';
 
@@ -15,5 +15,10 @@ public with sharing class AccountCollection {
 
   public void validateExist() {
     if (accounts.isEmpty()) throw new HandledException(NO_ACCOUNT_EXCEPTION);
+  }
+
+  @TestVisible
+  private Integer getAccountSize() {
+    return accounts.size();
   }
 }

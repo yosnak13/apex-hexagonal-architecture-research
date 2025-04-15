@@ -17,7 +17,7 @@ private class RegisterContactServiceTest {
   @IsTest
   static void execTest() {
     RegisterContactService result = new RegisterContactService(
-        new FindAccountRepositoryMock(), new RegisterContactRepositoryMock()
+        new FindAccountRepositoryMock(), new RegisterContactRepositoryMock(), new SendEmailRepositoryMock()
     );
     Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
     RegisterContactInput input = new RegisterContactInput(acct.Id, 'testName', EMAIL);
@@ -26,12 +26,13 @@ private class RegisterContactServiceTest {
 
     System.assert(FindAccountRepositoryMock.wasCalled);
     System.assert(RegisterContactRepositoryMock.wasCalled);
+    System.assert(SendEmailRepositoryMock.wasCalled);
   }
 
   @IsTest
   static void execTest_NoAccountIsExist() {
     RegisterContactService result = new RegisterContactService(
-        new FindAccountRepositoryEmptyMock(), new RegisterContactRepositoryMock()
+        new FindAccountRepositoryEmptyMock(), new RegisterContactRepositoryMock(), new SendEmailRepositoryMock()
     );
     Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
     RegisterContactInput input = new RegisterContactInput(acct.Id, 'testName', EMAIL);
@@ -41,6 +42,32 @@ private class RegisterContactServiceTest {
     } catch (HandledException e) {
       System.assertEquals(NO_ACCOUNT_EXCEPTION, e.getMessage());
     }
+
+    System.assert(FindAccountRepositoryEmptyMock.wasCalled);
     System.assert(!RegisterContactRepositoryMock.wasCalled);
+    System.assert(!SendEmailRepositoryMock.wasCalled);
+  }
+
+  @IsTest
+  static void execTest_CatchEmailExceptionFromEmailRepo() {
+    RegisterContactService result = new RegisterContactService(
+        new FindAccountRepositoryMock(), new RegisterContactRepositoryMock(), new SendEmailRepositoryExceptionMock()
+    );
+    Account acct = [SELECT Id FROM Account WHERE Name = :ACCOUNT_NAME];
+    RegisterContactInput input = new RegisterContactInput(acct.Id, 'testName', EMAIL);
+
+    try {
+      result.exec(input);
+    } catch (HandledException e) {
+      System.assertEquals(SendEmailRepositoryExceptionMock.EXCEPTION_MESSAGE, e.getMessage());
+    }
+
+    System.assert(FindAccountRepositoryMock.wasCalled);
+    System.assert(RegisterContactRepositoryMock.wasCalled);
+    System.assert(SendEmailRepositoryExceptionMock.wasCalled);
+
+    Integer expectedRecordSize = 0;
+    Integer actualRecordSize = [SELECT COUNT() FROM Contact WHERE LastName = :SendEmailRepositoryExceptionMock.FOR_ROLLBACK_CHECK_CONTACT_NAME];
+    System.assertEquals(expectedRecordSize, actualRecordSize);
   }
 }
