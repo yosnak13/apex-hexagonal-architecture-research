@@ -106,7 +106,7 @@ diパッケージを除き、書籍の第4章に沿って、以下で実装し�
 │           │           ├── domain
 │           │           │   ├── service
 │           │           │   │   └── UseCase実装クラス
-│           │           │   └── exception
+│           │           │   └── domainオブジェクト名
 │           │           │   │   └── ドメインオブジェクト
 │           │           └── port
 │           │               ├── in
@@ -207,7 +207,7 @@ public with sharing class RegisterContactInjector {
 
 ## 開発手順
 
-- [docs/development-procedure.md](https://github.com/yosnak13/apex-hexagonal-architecture-research/docs/development-procedure.md)に記載の通りに進める
+- [docs/development-procedure.md](./docs/development-procedure.md)に記載の通りに進める
 
 ## テストクラス設計方針
 
@@ -270,38 +270,95 @@ public with sharing class RegisterContactInjector {
 - sObjectを返却したい場合、sObjectをフロントに返す必要があり、ビジネスロジック層がSOQL技術に対して依存することを意味する。ApexがSOQLとしかやり取りしないのであれば影響はほとんどなく大したことがないが、例外的に依存を認める必要がある。メリットはあるため考えるため個人的には例外的に依存をOKとしたい
 - 大規模開発向けであることは間違いない。Idからオブジェクトをクエリするだけなら、このアーキテクチャはSFのメモリやCPUリソースを無駄遣いする実装とも言えてしまう
   - ビジネスロジックをもたない単なるクエリとの棲み分けを考える必要はありそうで、LWCのLightningデータサービスが使えるならそちらを優先すべきなのは確か
-  - ビジネスロジックをもたないクエリの場合、以下のコードをみると実装が大袈裟に見えるのはなんとなくわかる
+  - ただし、それを上回る可読性の良さ、高テスタビリティを実現できるとも言える
 
 ```cls
 public with sharing class RegisterContactController {
   // 初期版のregister-accountを例に、アーキテクチャなし版の開発と比較する。
   // 今回実装分。レイヤーに基づいて必要なインスタンスをビルドして処理させる。adapterに加え、Injector、usecase実装クラス、repository実装クラスの合計4つビルドする
-  @AuraEnabled
-  public static void register(Id accountId, String contactName) {
-    RegisterContactUseCase useCase = RegisterContactInjector.newRegisterContactUseCase();
-    useCase.exec(new ContactVo(accountId, contactName));
+  public static void register(final Id accountId, final String contactName, final String email) {
+    RegisterContactController controller =
+        new RegisterContactController(RegisterContactInjector.newRegisterContactUseCase());
+
+    try {
+      controller.registerContactUseCase.exec(new RegisterContactInput(accountId, contactName, email));
+    } catch (HandledException e) {
+      throw new HandledException(REGISTER_FAILED_MESSAGE + e.getMessage());
+    }
+  }
+
+  private RegisterContactController(final RegisterContactUseCase registerContactUseCase) {
+    this.registerContactUseCase = registerContactUseCase;
   }
   
   ↓
   
-  // 依存性を無視してSOQLを実装すると、このクラス1つで完結する。SELECTだけする機能ならならなおさら短くすむ。LWCならLightningDataServiceでよいので、これすらいらない。
-  // ただし、Interfaceを実装しないためmockは使えない。ビジネスロジックが複雑化するほど、この実装はスパゲティコードになりがち。
+  // 依存性を無視してSOQLを実装すると、このクラス1つで完結する。
+  // Interfaceを実装しないためmockは使えないほか、このコードのテストクラスではあらゆる条件（正常処理のほか、ガード節ごとの例外処理、メール文、ロールバック処理など）に対応したケースを作る必要ががあり、かなりの行数が必要。
+  // ビジネスロジックが複雑化するほど、この実装はスパゲティコードになりがち。
+  private static final String EMAIL_PATTERN =
+      '^(?!\\.)(?!.*\\.\\.)[a-zA-Z0-9._%+-]+(?<!\\.)@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{2,})$';
+  private static final Integer MAX_LENGTH = 80; // Salesforce上の最大値
+  private static final String ILLEGAL_MESSAGE = '姓は必須項目で、80文字以内である必要があります。';
+  
   @AuraEnabled
-  public static void register(Id accountId, String contactName) {
+  public static void register(Id accountId, String contactName, String email) {
+    if (!acctIdVo.getSobjectType().getDescribe().getName().equals(ACCOUNT)) {
+      throw new IllegalArgumentException('AccountのIdではありません');
+    }
+    if (String.isBlank(email) || !Pattern.matches(EMAIL_PATTERN, email)) {
+      throw new IllegalArgumentException('無効なメールアドレスです。');
+    }
+    if (String.isBlank(lastName) || lastName.length() > MAX_LENGTH) throw new IllegalArgumentException(ILLEGAL_MESSAGE);
+    
     Account[] accts = [SELECT Id FROM Account WHERE Id = :accountId()];
     if (accts.isEmpty()) throw new HandledException('No Account Is Exist.');
+    
+    Savepoint sp = Database.setSavepoint();
+    try {
+      insert new Contact(AccountId = :accountId, LastName = contactName);
+      Messaging.sendEmail(new Messaging.SingleEmailMessage[]{toEmailMessage});
+    } catch (EmailException e) {
+      Database.rollback(sp);
+      throw new HandledException(e.getMessage());
+    }
+    
+    private Messaging.SingleEmailMessage toEmailMessage() {
+      Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+      mail.setToAddresses(new List<String>{ email });
+      mail.setSubject("【ようこそ】" + contactName + " 様");
+      mail.setHtmlBody(buildHtmlBody());
+      return mail;
+    }
 
-    insert new Contact(AccountId = :accountId, LastName = contactName);
+    private String buildHtmlBody() {
+      return ''
+          + '<!DOCTYPE html>'
+          + '<html>'
+          + '<head><meta charset="UTF-8"><style>'
+          + '  body { font-family: Arial, sans-serif; line-height: 1.6; }'
+          + '  .content { padding: 20px; background: #f9f9f9; border-radius: 10px; }'
+          + '</style></head>'
+          + '<body>'
+          + '  <div class="content">'
+          + '    <h2>' + contactName + " 様" + '</h2>'
+          + '    <p>この度はご登録いただき、誠にありがとうございます。</p>'
+          + '    <p>ご不明点等ございましたら、お気軽にご連絡ください。</p>'
+          + '    <p>今後ともよろしくお願いいたします。</p>'
+          + '  </div>'
+          + '</body>'
+          + '</html>';
+    }
   }
 }
 ```
-- ApexTriggerはDBから発火するため、ヘキサゴナルアーキテクチャ的には一番外のDBレイヤーからのリクエストに該当する。そのため、Triggerディレクトリ内にハンドラークラスを実装し、Register.inパッケージ内に実装したクラス（Controller）を呼び出す処理にすればいい。
-  - しかし、特定の項目を更新する、というような簡素な処理である場合は、やはり実装が大袈裟になりがちに見えてしまう。簡潔な処理しかしないトリガーである場合は、Apexトリガーではなくフロートリガーに任せた方がいい
+- ApexTriggerはDBから発火するため、ヘキサゴナルアーキテクチャ的には一番外のDBレイヤーからのリクエストに該当する。そのため、Triggerディレクトリ内にハンドラークラスを実装し、Register.inパッケージ内に実装したクラス（Controller）を呼び出す処理にすればいい
+  - しかし、特定の項目を更新する、というような簡素な処理である場合は、やはり実装が大袈裟になりがちに見えてしまう簡潔な処理しかしないトリガーである場合は、Apexトリガーではなくフロートリガーに任せた方がいい
 
 ## 個人的総評
 
 - 相性が悪い部分は当然あるが、活かせないということは全くない。
 - 特に保守しやすいコードにする、という点においては、正しく実装すれば十分に保守しやすいコードになりうると考えている。
 - デザインパターンやドメイン知識の解釈とソフトウェアへの実装が難しいだけけあり、学習コストはかかる(ソフトウェアデザインパターンの理解・習得は一朝一夕ではない)
-- Salesforceそのものが、データ駆動な製品といえることを再確認した。sObjectを大切にしており、カスタムApexクラスをLWCに返却する実装にすると、オブジェクト権限や項目レベルセキュリティ等は無視した実装となり、相性が悪いので適材適所とする必要あり。
+- Salesforceそのものが、データ駆動な製品といえることを再確認した。sObjectを大切にしており、カスタムApexクラスをLWCに返却する実装にすると、オブジェクト権限や項目レベルセキュリティ等は無視した実装となり、相性が悪いので適材適所とする必要あり
   - SOQLと密結合しているだけあり、意外とデータ駆動設計の方が都合がよかったりするのだろうか
