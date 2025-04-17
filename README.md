@@ -313,12 +313,11 @@ public with sharing class RegisterContactController {
     
     Account[] accts = [SELECT Id FROM Account WHERE Id = :accountId()];
     if (accts.isEmpty()) throw new HandledException('No Account Is Exist.');
-
     
     Savepoint sp = Database.setSavepoint();
     try {
       insert new Contact(AccountId = :accountId, LastName = contactName);
-      Messaging.sendEmail(new Messaging.SingleEmailMessage[]{emailMessage});
+      Messaging.sendEmail(new Messaging.SingleEmailMessage[]{toEmailMessage});
     } catch (EmailException e) {
       Database.rollback(sp);
       throw new HandledException(e.getMessage());
@@ -326,7 +325,7 @@ public with sharing class RegisterContactController {
     
     private Messaging.SingleEmailMessage toEmailMessage() {
       Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-      mail.setToAddresses(new List<String>{ emailVo.toEmail() });
+      mail.setToAddresses(new List<String>{ email });
       mail.setSubject("【ようこそ】" + contactName + " 様");
       mail.setHtmlBody(buildHtmlBody());
       return mail;
@@ -353,13 +352,13 @@ public with sharing class RegisterContactController {
   }
 }
 ```
-- ApexTriggerはDBから発火するため、ヘキサゴナルアーキテクチャ的には一番外のDBレイヤーからのリクエストに該当する。そのため、Triggerディレクトリ内にハンドラークラスを実装し、Register.inパッケージ内に実装したクラス（Controller）を呼び出す処理にすればいい。
-  - しかし、特定の項目を更新する、というような簡素な処理である場合は、やはり実装が大袈裟になりがちに見えてしまう。簡潔な処理しかしないトリガーである場合は、Apexトリガーではなくフロートリガーに任せた方がいい
+- ApexTriggerはDBから発火するため、ヘキサゴナルアーキテクチャ的には一番外のDBレイヤーからのリクエストに該当する。そのため、Triggerディレクトリ内にハンドラークラスを実装し、Register.inパッケージ内に実装したクラス（Controller）を呼び出す処理にすればいい
+  - しかし、特定の項目を更新する、というような簡素な処理である場合は、やはり実装が大袈裟になりがちに見えてしまう簡潔な処理しかしないトリガーである場合は、Apexトリガーではなくフロートリガーに任せた方がいい
 
 ## 個人的総評
 
 - 相性が悪い部分は当然あるが、活かせないということは全くない。
 - 特に保守しやすいコードにする、という点においては、正しく実装すれば十分に保守しやすいコードになりうると考えている。
 - デザインパターンやドメイン知識の解釈とソフトウェアへの実装が難しいだけけあり、学習コストはかかる(ソフトウェアデザインパターンの理解・習得は一朝一夕ではない)
-- Salesforceそのものが、データ駆動な製品といえることを再確認した。sObjectを大切にしており、カスタムApexクラスをLWCに返却する実装にすると、オブジェクト権限や項目レベルセキュリティ等は無視した実装となり、相性が悪いので適材適所とする必要あり。
+- Salesforceそのものが、データ駆動な製品といえることを再確認した。sObjectを大切にしており、カスタムApexクラスをLWCに返却する実装にすると、オブジェクト権限や項目レベルセキュリティ等は無視した実装となり、相性が悪いので適材適所とする必要あり
   - SOQLと密結合しているだけあり、意外とデータ駆動設計の方が都合がよかったりするのだろうか
