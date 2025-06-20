@@ -200,8 +200,8 @@ public with sharing class RegisterContactInjector {
     - ビジネスロジック実行で得た生成値を、呼び出し元に返却
 - application.port.inパッケージに宣言されているUseCaseInterfaceを実装
 - フィールドには永続化層のInterfaceを持たせて、永続化層のメソッドは抽象化させておく(多態)
-- 別のAdapterからの原則再利用を禁止する
-- publicメソッドはexecのみとし、それ以外は実装しない
+- 別のAdapterからの再利用は禁止
+- publicメソッドは`exec`のみとし、それ以外は実装しない
 
 ## 開発手順
 
