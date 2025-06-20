@@ -134,8 +134,6 @@ diパッケージを除き、書籍の第4章に沿って、以下で実装し�
   - リクエストパラメータをUseCaseが解釈可能なフォーマットに整形
   - UseCaseからの返却値を、呼び出し元が解釈可能なフォーマットに再整形
 - 複数のLWCからの呼び出しはOKだが、単一責務の原則とテスト容易性担保のため、`@AuraEnable`アノテーションを付与するpublicメソッドは1つのみとする
-- フロントエンドからの入力値のフォーマットは、adapter.inパッケージにValidatorを実装して行う。そのクラス名にはValidatorサフィックスを付与する
-- Validatorは、Apexクラスが正しく処理できるようにするためのもので、Salesforce標準機能の入力規則とは別物と考える
 
 ### out.persistence
 
@@ -202,8 +200,8 @@ public with sharing class RegisterContactInjector {
     - ビジネスロジック実行で得た生成値を、呼び出し元に返却
 - application.port.inパッケージに宣言されているUseCaseInterfaceを実装
 - フィールドには永続化層のInterfaceを持たせて、永続化層のメソッドは抽象化させておく(多態)
-- 別のAdapterからの原則再利用を禁止する
-- publicメソッドはexecのみとし、それ以外は実装しない
+- 別のAdapterからの再利用は禁止
+- publicメソッドは`exec`のみとし、それ以外は実装しない
 
 ## 開発手順
 
