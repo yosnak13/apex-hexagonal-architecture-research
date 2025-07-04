@@ -14,8 +14,9 @@ public with sharing class AccountCollection {
     }
 
     public void validateExist() {
-        if (accounts.isEmpty())
+        if (accounts.isEmpty()) {
             throw new HandledException(NO_ACCOUNT_EXCEPTION);
+        }
     }
 
     @TestVisible

@@ -5,8 +5,9 @@
 public with sharing class RegisterContactInjector {
     public static RegisterContactUseCase newRegisterContactUseCase() {
         // E2Eテストのために、カスタム設定の項目値を利用するしかない。Unitテスト以外は実装クラスを返す
-        if (isUnitTest())
+        if (isUnitTest()) {
             return new RegisterContactServiceMock();
+        }
 
         return new RegisterContactService(
             new FindAccountRepositoryImpl(),
