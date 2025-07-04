@@ -4,10 +4,10 @@
 
 @IsTest
 public with sharing class SendEmailRepositoryMock implements SendEmailRepository {
-  public static Boolean wasCalled = false;
+    public static Boolean wasCalled = false;
 
-  public void sendEmail(Messaging.SingleEmailMessage emailMessage) {
-    wasCalled = true;
-    return ;
-  }
+    public void sendEmail(Messaging.SingleEmailMessage emailMessage) {
+        wasCalled = true;
+        return;
+    }
 }

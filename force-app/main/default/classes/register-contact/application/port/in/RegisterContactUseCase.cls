@@ -3,5 +3,5 @@
  */
 
 public interface RegisterContactUseCase {
-  void exec(RegisterContactInput input);
+    void exec(RegisterContactInput input);
 }

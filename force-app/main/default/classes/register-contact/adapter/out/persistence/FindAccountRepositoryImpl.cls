@@ -3,8 +3,8 @@
  */
 
 public with sharing class FindAccountRepositoryImpl implements FindAccountRepository {
-  public AccountCollection findById(Id accountId) {
-    List<Account> accounts = [SELECT Id FROM Account WHERE Id = :accountId];
-    return new AccountCollection(accounts);
-  }
+    public AccountCollection findById(Id accountId) {
+        List<Account> accounts = [SELECT Id FROM Account WHERE Id = :accountId];
+        return new AccountCollection(accounts);
+    }
 }
