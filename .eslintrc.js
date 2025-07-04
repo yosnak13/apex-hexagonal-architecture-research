@@ -1,12 +1,14 @@
+// eslint-disable-next-line no-undef
 module.exports = {
-    extends: ['eslint:recommended', 'plugin:lwc/recommended'],
-    plugins: ['lwc'],
+    extends: ['eslint:recommended', '@salesforce/eslint-config-lwc'],
     env: {
         browser: true,
         es2021: true
     },
     rules: {
         semi: ['error', 'always'],
-        'no-console': 'warn'
+        quotes: ['error', 'single'],
+        'no-console': 'warn',
+        'no-unused-vars': 'warn'
     }
 };
