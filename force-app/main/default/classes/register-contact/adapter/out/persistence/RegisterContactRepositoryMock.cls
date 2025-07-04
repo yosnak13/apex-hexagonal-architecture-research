@@ -4,10 +4,10 @@
 
 @IsTest
 public with sharing class RegisterContactRepositoryMock implements RegisterContactRepository {
-  public static Boolean wasCalled = false;
+    public static Boolean wasCalled = false;
 
-  public void create(ContactEntity entity) {
-    wasCalled = true;
-    return;
-  }
+    public void create(ContactEntity entity) {
+        wasCalled = true;
+        return;
+    }
 }

@@ -3,61 +3,64 @@
  */
 
 public with sharing class ContactEntity {
-  final AccountIdVo idVo;
-  final LastNameVo contactNameVo;
-  final EmailVo emailVo;
+    final AccountIdVo idVo;
+    final LastNameVo contactNameVo;
+    final EmailVo emailVo;
 
-  private static final String WELCOME = '【ようこそ】';
-  private static final String SPACE_WITH_HONORIFIC = ' 様';
+    private static final String WELCOME = '【ようこそ】';
+    private static final String SPACE_WITH_HONORIFIC = ' 様';
 
-  public ContactEntity(AccountIdVo idVo, LastNameVo contactNameVo, EmailVo emailVo) {
-    this.idVo = idVo;
-    this.contactNameVo = contactNameVo;
-    this.emailVo = emailVo;
-  }
+    public ContactEntity(AccountIdVo idVo, LastNameVo contactNameVo, EmailVo emailVo) {
+        this.idVo = idVo;
+        this.contactNameVo = contactNameVo;
+        this.emailVo = emailVo;
+    }
 
-  public Contact toContact() {
-    return new Contact(AccountId = idVo.toId(), LastName = contactNameVo.toLastName(), Email = emailVo.toEmail());
-  }
+    public Contact toContact() {
+        return new Contact(AccountId = idVo.toId(), LastName = contactNameVo.toLastName(), Email = emailVo.toEmail());
+    }
 
-  public Id getAccountId() {
-    return idVo.toId();
-  }
+    public Id getAccountId() {
+        return idVo.toId();
+    }
 
-  public Messaging.SingleEmailMessage toEmailMessage() {
-    Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-    mail.setToAddresses(new List<String>{ emailVo.toEmail() });
-    mail.setSubject(WELCOME + contactNameVo.toLastName() + SPACE_WITH_HONORIFIC);
-    mail.setHtmlBody(buildHtmlBody());
-    return mail;
-  }
+    public Messaging.SingleEmailMessage toEmailMessage() {
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setToAddresses(new List<String>{ emailVo.toEmail() });
+        mail.setSubject(WELCOME + contactNameVo.toLastName() + SPACE_WITH_HONORIFIC);
+        mail.setHtmlBody(buildHtmlBody());
+        return mail;
+    }
 
-  private String buildHtmlBody() {
-    return ''
-        + '<!DOCTYPE html>'
-        + '<html>'
-        + '<head><meta charset="UTF-8"><style>'
-        + '  body { font-family: Arial, sans-serif; line-height: 1.6; }'
-        + '  .content { padding: 20px; background: #f9f9f9; border-radius: 10px; }'
-        + '</style></head>'
-        + '<body>'
-        + '  <div class="content">'
-        + '    <h2>' + contactNameVo.toLastName() + SPACE_WITH_HONORIFIC + '</h2>'
-        + '    <p>この度はご登録いただき、誠にありがとうございます。</p>'
-        + '    <p>ご不明点等ございましたら、お気軽にご連絡ください。</p>'
-        + '    <p>今後ともよろしくお願いいたします。</p>'
-        + '  </div>'
-        + '</body>'
-        + '</html>';
-  }
+    private String buildHtmlBody() {
+        return '' +
+            '<!DOCTYPE html>' +
+            '<html>' +
+            '<head><meta charset="UTF-8"><style>' +
+            '  body { font-family: Arial, sans-serif; line-height: 1.6; }' +
+            '  .content { padding: 20px; background: #f9f9f9; border-radius: 10px; }' +
+            '</style></head>' +
+            '<body>' +
+            '  <div class="content">' +
+            '    <h2>' +
+            contactNameVo.toLastName() +
+            SPACE_WITH_HONORIFIC +
+            '</h2>' +
+            '    <p>この度はご登録いただき、誠にありがとうございます。</p>' +
+            '    <p>ご不明点等ございましたら、お気軽にご連絡ください。</p>' +
+            '    <p>今後ともよろしくお願いいたします。</p>' +
+            '  </div>' +
+            '</body>' +
+            '</html>';
+    }
 
-  @TestVisible
-  private String getContactNameVo() {
-    return contactNameVo.toLastName();
-  }
+    @TestVisible
+    private String getContactNameVo() {
+        return contactNameVo.toLastName();
+    }
 
-  @TestVisible
-  private String getEmailVo() {
-    return emailVo.toEmail();
-  }
+    @TestVisible
+    private String getEmailVo() {
+        return emailVo.toEmail();
+    }
 }
